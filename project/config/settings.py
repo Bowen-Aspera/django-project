@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-*m276a4=duu0_*a@7g_pk_sv^&^-5tcdo-ebk9&l))5g3dmc$$
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['192.168.0.174','127.0.0.1']
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -159,7 +159,8 @@ DJOSER = {
     'SEND_CONFIRMATION_EMAIL': True,
     'LOGIN_FIELD': 'email',
     'SERIALIZERS': {
-        'user_create': 'accounts.serializers.CustomUserCreateSerializer',
-        'current_user': 'accounts.serializers.CustomUserSerializer',
+        'user': 'accounts.serializers.UserSerializer',
+        'current_user': 'accounts.serializers.UserSerializer',
+        'user_create': 'accounts.serializers.CustomUserCreateSerializer'
     }
 }
