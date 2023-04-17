@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-*m276a4=duu0_*a@7g_pk_sv^&^-5tcdo-ebk9&l))5g3dmc$$
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['192.168.0.174','127.0.0.1']
 
 
 # Application definition
@@ -137,24 +137,29 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOWED_ORIGINS = [
+    "http://192.168.0.174:3000",
+    "http://127.0.0.1:8000",
+]
 
-#Verification Email
+# Verification Email
 EMAIL_HOST = 'sandbox.smtp.mailtrap.io'
 EMAIL_HOST_USER = 'e46b7b548fffcf'
 EMAIL_HOST_PASSWORD = 'ac5252dc72a524'
 EMAIL_PORT = '2525'
 
-#DJOSER SETTINGS HERE
-#https://djoser.readthedocs.io/en/latest/settings.html
+# DJOSER SETTINGS HERE
+# https://djoser.readthedocs.io/en/latest/settings.html
 
 DJOSER = {
     'PASSWORD_RESET_CONFIRM_URL': '/password/reset/confirm/{uid}/{token}',
     'USERNAME_RESET_CONFIRM_URL': '/username/reset/confirm/{uid}/{token}',
     'ACTIVATION_URL': '/activate/{uid}/{token}',
     'SEND_ACTIVATION_EMAIL': True,
+    'SEND_CONFIRMATION_EMAIL': True,
     'LOGIN_FIELD': 'email',
     'SERIALIZERS': {
-    'user_create': 'accounts.serializers.CustomUserCreateSerializer',
+        'user_create': 'accounts.serializers.CustomUserCreateSerializer',
+        'current_user': 'accounts.serializers.CustomUserSerializer',
     }
 }
-
