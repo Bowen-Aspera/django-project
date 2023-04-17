@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from djoser.serializers import UserCreateSerializer
+from djoser.serializers import UserCreateSerializer, UserSerializer
+
 from djoser.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
@@ -9,18 +10,32 @@ from accounts.models import Profile
 
 User = get_user_model()
 
-class CustomUserCreateSerializer(UserCreateSerializer):
-    first_name=serializers.CharField(max_length=255, write_only=True)
-    last_name=serializers.CharField(max_length=255, write_only=True)
-    birthdate=serializers.DateField(write_only=True)
-    gender=serializers.CharField(max_length=6, write_only=True)
 
+class CustomUserSerializer(UserSerializer):
+    class Meta:
+        model = User
+        fields = tuple(User.REQUIRED_FIELDS) + (
+            settings.USER_ID_FIELD,
+            settings.LOGIN_FIELD,
+            'username',
+            'first_name',
+            'last_name',
+        )
+        read_only_fields = (settings.LOGIN_FIELD,)
+
+
+# CREATE USER PROFILE
+class CustomUserCreateSerializer(UserCreateSerializer):
+    first_name = serializers.CharField(max_length=255, write_only=True)
+    last_name = serializers.CharField(max_length=255, write_only=True)
+    birthdate = serializers.DateField(write_only=True)
+    gender = serializers.CharField(max_length=6, write_only=True)
 
     class Meta:
         model = User
         fields = tuple(User.REQUIRED_FIELDS) + (
-            settings.LOGIN_FIELD,
             settings.USER_ID_FIELD,
+            settings.LOGIN_FIELD,
             "password",
             "first_name",
             "last_name",
@@ -29,24 +44,22 @@ class CustomUserCreateSerializer(UserCreateSerializer):
         )
 
     def clean_profile_data(self, validated_data):
-        return{
-            'birthdate': validated_data.get('birthdate',''),
-            'gender': validated_data.get('gender',''),
+        return {
+            'birthdate': validated_data.get('birthdate', ''),
+            'gender': validated_data.get('gender', ''),
         }
-    
+
     def clean_user_data(self, validated_data):
-        return{
-            'first_name': validated_data.get('first_name',''),
-            'last_name': validated_data.get('last_name',''),
-            'email': validated_data.get('email',''),
-            'password': validated_data.get('password',''),
+        return {
+            'first_name': validated_data.get('first_name', ''),
+            'last_name': validated_data.get('last_name', ''),
+            'email': validated_data.get('email', ''),
+            'password': validated_data.get('password', ''),
             'username': validated_data.get('email', ''),
         }
-            
-        
 
     def validate(self, attrs):
-        user_data=self.clean_user_data(attrs)
+        user_data = self.clean_user_data(attrs)
         user = User(**user_data)
         password = attrs.get("password")
 
@@ -72,7 +85,8 @@ class CustomUserCreateSerializer(UserCreateSerializer):
         with transaction.atomic():
             user_data = self.clean_user_data(validated_data)
             user = User.objects.create_user(**user_data)
-            Profile.objects.create(user=user,**self.clean_profile_data(validated_data=validated_data))
+            Profile.objects.create(
+                user=user, **self.clean_profile_data(validated_data=validated_data))
             if settings.SEND_ACTIVATION_EMAIL:
                 user.is_active = False
                 user.save(update_fields=["is_active"])
